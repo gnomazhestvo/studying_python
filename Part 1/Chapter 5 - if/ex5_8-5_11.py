@@ -15,6 +15,7 @@
 
 
 print()
+print('5.8, 5.9. Пользователи.')
 users = ['admin', 'bdmin', 'cdmin', 'edmin', 'fdmin', 'gdmin']
 if users:
     for user in users:
@@ -27,7 +28,7 @@ else:
 
 
 
-# «5.10. Проверка имен пользователей. Выполните следующие
+# 5.10. Проверка имен пользователей. Выполните следующие
 # действия, чтобы создать программу, имитирующую проверку
 # сайтом уникальности имен пользователей.
 # •	 Создайте список current_users, содержащий пять и более
@@ -48,3 +49,42 @@ else:
 # регистре.)
 
 print()
+print('5.10. Проверка имен пользователей.')
+
+current_users = ['Igor', 'Lev', 'grigory', 'artem', 'JOHN']
+new_users = ['andrew', 'IgOr', 'LEV', 'alex', 'kirill']
+
+current_users_lower = [current_user.lower() for current_user in current_users]
+
+for new_user in new_users:
+    if new_user.lower() in current_users_lower:
+        print(f'No, [{new_user}] is occupied. Pick another one.')
+    else:
+        print(f'Nickname [{new_user}] is vacant...')
+print(current_users)
+
+# 5.11. Порядковые числительные. Порядковые числительные в
+# английском языке заканчиваются суффиксом th (кроме 1st,
+# 2nd и 3rd).
+# •	 Сохраните числа от 1 до 9 в списке.
+# •	 Переберите элементы списка.
+# • Используйте цепочку if-elif-else в цикле для вывода
+# правильного окончания числительного для каждого числа.
+# Программа должна выводить числительные "1st 2nd 3rd 4th 5th
+# 6th 7th 8th 9th", причем каждый результат должен
+# располагаться на отдельной строке.
+
+print()
+print('5.11. Порядковые числительные')
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+for num in numbers:
+    if num == 1:
+        print(f'{num}st')
+    elif num == 2:
+        print(f'{num}nd')
+    elif num == 3:
+        print(f'{num}rd')
+    else:
+        print(f'{num}th')
