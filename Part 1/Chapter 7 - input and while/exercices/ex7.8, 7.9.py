@@ -17,8 +17,7 @@ print('Сегодня готовим сэндвичи.')
 prompt = 'Какой хотите?\n'
 prompt += 'Когда завершите выбор, введите "stop"\n'
 
-sandwiches_active = True
-while sandwiches_active:
+while True:
     new_sandwiche = input(prompt)
     sandwich_orders.append(new_sandwiche)
     if new_sandwiche == 'pastrami':
