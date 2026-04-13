@@ -16,3 +16,41 @@
 # из пушки, когда игрок нажимает клавишу Пробел. Когда это
 # поведение будет реализовано, мы можем заняться пришельцами
 # и доработкой игрового процесса.
+
+import sys
+import pygame
+
+from settings import Settings
+from ship import Ship
+
+class AlienInvasion:
+    """Класс для управления ресурсами и поведением игры."""
+    def __init__(self):
+        """Инициализирует игру и создает игровые ресурсы."""
+        pygame.init()
+        pygame.display.set_caption("Alien Invasion")
+        self.clock = pygame.time.Clock()
+        self.settings = Settings()
+        self.screen = pygame.display.set_mode(
+            (self.settings.screen_width, self.settings.screen_height))
+        self.ship = Ship(self.screen)
+        
+
+    def run_game(self):
+        """Запускает основной цикл игры."""
+        while True:
+            # отслеживание событий клавиатуры и мыши:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                # при каждом обновлении экрана нужно покрасить его в заданный в __init__ цвет:
+                self.screen.fill(self.settings.bg_color)
+                self.ship.blitme()
+                # Отображение последнего прорисованного экрана:
+                pygame.display.flip()
+                self.clock.tick(60)
+
+if __name__ == '__main__':
+    # создание экземпляра и запуск игры:
+    ai = AlienInvasion()
+    ai.run_game()
