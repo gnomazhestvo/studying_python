@@ -1,56 +1,41 @@
-# Каждый игрок управляет кораблем, который находится в
-# середине нижнего края экрана. Игрок перемещает корабль
-# вправо и влево с помощью клавиш управления курсором;
-# клавиша Пробел используется для стрельбы. В начале игры
-# флот пришельцев находится в верхней части экрана и
-# постепенно опускается, при этом смещаясь в сторону.
-# Игрок уничтожает пришельцев, стреляя по ним. Если ему
-# удается сбить всех пришельцев, то появляется новый флот,
-# который движется быстрее предыдущего. Если пришелец
-# сталкивается с кораблем игрока или доходит до нижнего края
-# экрана, то игрок теряет корабль. Если игрок теряет все три
-# корабля, то игра заканчивается.
-# 
-# На первой фазе разработки мы создадим корабль, который
-# может двигаться вправо и влево. Корабль должен стрелять
-# из пушки, когда игрок нажимает клавишу Пробел. Когда это
-# поведение будет реализовано, мы можем заняться пришельцами
-# и доработкой игрового процесса.
-
 import sys
 import pygame
-
 from settings import Settings
 from ship import Ship
 
 class AlienInvasion:
     """Класс для управления ресурсами и поведением игры."""
+
     def __init__(self):
-        """Инициализирует игру и создает игровые ресурсы."""
         pygame.init()
-        pygame.display.set_caption("Alien Invasion")
-        self.clock = pygame.time.Clock()
         self.settings = Settings()
-        self.screen = pygame.display.set_mode(
-            (self.settings.screen_width, self.settings.screen_height))
-        self.ship = Ship(self.screen)
-        
+        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+        self.ship = Ship(self)
+        pygame.display.set_caption('Alien Invasion')
+
+    def _check_events(self):
+        """Отслеживание событий клавиатуры и мыши."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit
+
+    def _update_screen(self):
+        # при каждом проходе цикла экран заливается цветом:
+        self.screen.fill(self.settings.bg_color)
+        # вывод корабля в текущей позиции:
+        self.ship.blitme()
+        # отображение последнего нарисованного экрана:
+        pygame.display.flip()
+        self.clock.tick(60)
 
     def run_game(self):
         """Запускает основной цикл игры."""
         while True:
-            # отслеживание событий клавиатуры и мыши:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                # при каждом обновлении экрана нужно покрасить его в заданный в __init__ цвет:
-                self.screen.fill(self.settings.bg_color)
-                self.ship.blitme()
-                # Отображение последнего прорисованного экрана:
-                pygame.display.flip()
-                self.clock.tick(60)
+            self._check_events()
+            self._update_screen()
 
 if __name__ == '__main__':
-    # создание экземпляра и запуск игры:
+    # создание экземпляра и запуск игры
     ai = AlienInvasion()
     ai.run_game()

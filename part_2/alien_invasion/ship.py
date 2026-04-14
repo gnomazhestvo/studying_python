@@ -1,18 +1,18 @@
 import pygame
 
 class Ship:
-    """Класс для управления поведением корабля."""
+    """Класс для управления кораблем."""
 
     def __init__(self, ai_game):
         """Инициализирует корабль и задает его начальную позицию."""
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
 
-        # загружаем изображение корабля и получаем прямоугольник:
-        self.image = pygame.image.load('images/ship.bmp')
+        # загружает изображение и получает прямоугольник
+        self.image = pygame.image.load('images/ship.png')
         self.rect = self.image.get_rect()
 
-        # каждый новый корабль появляется в середине нижнего края экрана:
+        # каждый новый корабль появляется внизе в середине
         self.rect.midbottom = self.screen_rect.midbottom
 
     def blitme(self):
