@@ -59,7 +59,7 @@ class Exercise:
             pygame.display.flip()
             self.rocket.movings()
             for event in pygame.event.get():
-                self._check_events(event)     
+                self._check_keydown_events(event)
 
 
 class Rocket:

@@ -2,17 +2,20 @@ import sys
 import pygame
 from settings import Settings
 from ship import Ship
+from bullet import Bullet
 
 class AlienInvasion:
     """Класс для управления ресурсами и поведением игры."""
 
     def __init__(self):
         pygame.init()
-        self.settings = Settings()
-        self.clock = pygame.time.Clock()
-        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
-        self.ship = Ship(self)
         pygame.display.set_caption('Alien Invasion')
+        self.settings = Settings()
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+        self.clock = pygame.time.Clock()
+        self.ship = Ship(self)
+        self.bullets = pygame.sprite.Group()
+
 
     def _check_events(self):
         """Отслеживание событий клавиатуры и мыши."""
@@ -28,6 +31,8 @@ class AlienInvasion:
             self.ship.moving_left = True
         elif event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
+        elif event.key == pygame.K_SPACE:
+            self._fire_bullet()
         elif event.key == pygame.K_q:
             sys.exit()
 
@@ -41,18 +46,32 @@ class AlienInvasion:
     def _update_screen(self):
         # при каждом проходе цикла экран заливается цветом:
         self.screen.fill(self.settings.bg_color)
+        # вывод снаряда в текущей позиции корабля:
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
         # вывод корабля в текущей позиции:
         self.ship.blitme()
         # отображение последнего нарисованного экрана:
         pygame.display.flip()
+
+    def _fire_bullet(self):
+        """Создает новый снаряд и добавляет его в группу bullets."""
+        new_bullet = Bullet(self)
+        self.bullets.add(new_bullet)
 
     def run_game(self):
         """Запускает основной цикл игры."""
         while True:
             self._check_events()
             self.ship.update()
+            self.bullets.update()
             self._update_screen()
             self.clock.tick(60)
+            # удаление снарядов, вышедших за край экрана:
+            for bullet in self.bullets.copy():
+                if bullet.rect.bottom <= 0:
+                    self.bullets.remove(bullet)
+                    print(len(self.bullets))
 
 if __name__ == '__main__':
     # создание экземпляра и запуск игры
