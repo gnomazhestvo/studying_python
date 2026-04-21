@@ -36,60 +36,58 @@ class Exercise:
         new_drop.rect.y = new_drop.y
         self.drops.add(new_drop)
 
-    def _create_row(self, y):
-        """Создает ряд из капель."""
+    def _create_rain(self):
+        """Создает сетку из капель."""
         # создание капли для определения размеров:
         sample_drop = Drop(self)
-        drop_width = sample_drop.rect.width
+        drop_width, drop_height = sample_drop.rect.size
         # определяем размеры экрана, чтобы определить его вместимость:
-        screen_width = self.screen.get_width()
-        # создаем капли - сначала в правом верхнем углу, далее по циклу:
-        current_x = drop_width
-        while current_x < (screen_width - drop_width):
-            offset_x = randint(-10, 10)
-            offset_y = randint(-10, 10)
-            self._create_one_drop(current_x+offset_x, y+offset_y)
-            current_x += drop_width
-        current_x = drop_width
-
-    def _create_rain(self):
-        """Множит ряды по оси y. Работает аналогично _create_row()"""
-        sample_drop = Drop(self)
-        drop_height = sample_drop.rect.height
-        screen_height = self.screen.get_height()
-
+        screen_width, screen_height = self.screen.get_size()
+        # создаем капли - сначала в правом верхнем углу, далее по циклам:
         current_y = drop_height
         while current_y < (screen_height - drop_height):
-            self._create_row(current_y)
+            current_x = drop_width
+            while current_x < (screen_width - drop_width):
+                self._create_one_drop(current_x, current_y)
+                current_x += drop_width
+            current_x = drop_width
             current_y += drop_height
         current_y = drop_height
 
-    def _remove_bottom_row(self):
-        """Удаляет ряд капель, которые достигли нижнего края."""
-        # найдем максимальный y:
-        for drop in self.drops.copy():
-            if drop.rect.top > self.screen.get_height():
-                self.drops.remove(drop)
-
-    def _add_new_row(self):
-        """Добавляет новый ряд капель за верхним краем экрана."""
+    def _create_new_row(self):
+        """Создает новый ряд капель сверху."""
         sample_drop = Drop(self)
-        drop_height = sample_drop.rect.height
-        new_y = -drop_height
-        self._create_row(new_y)
+        drop_width, drop_height = sample_drop.rect.size
+        screen_width = self.screen.get_width()
+        current_y = drop_height
+        current_x = drop_width
+        while current_x < (screen_width - drop_width):
+            self._create_one_drop(current_x, current_y)
+            current_x += drop_width
+        current_x = drop_width
 
+    def _count_drops_per_row(self):
+        """Возвращает количество капель на каждый ряд."""
+        sample_drop = Drop(self)
+        drop_width = sample_drop.rect.width
+        screen_width = self.screen.get_width()
+        drops_per_row = (screen_width - drop_width) // drop_width
+        return drops_per_row
+
+    def _remove_lowest_drops_row(self):
+        """Удаляет ряд капель, которые вышли за нижний край экрана и создает новый ряд сверху, когда это произошло."""
+        removed_count = 0
+        for drop in self.drops.copy():
+            if drop.rect.top >= self.screen.get_height():
+                self.drops.remove(drop)
+                removed_count += 1
+                if removed_count == self._count_drops_per_row():
+                    self._create_new_row()
+                
     def _update_drops(self):
         """Перемещение капель - из модуля drop."""
-        self._check_drops_edge()
+        self._remove_lowest_drops_row()
         self.drops.update()
-
-    def _check_drops_edge(self):
-        """Когда нижний ряд достигает края экрана, создается новый ряд."""
-        for drop in self.drops.copy():
-            if drop.check_edge():
-                self._remove_bottom_row()
-                self._add_new_row()
-                break
 
 
     def _update_screen(self):
@@ -118,6 +116,8 @@ class Drop(Sprite):
         # загрузка изображения:
         self.image = pygame.image.load('star.png')
         self.rect = self.image.get_rect()
+        self.speed = 1
+        self.direction = 1
 
         # каждая новая капля появляется в левом верхнем углу экрана,
         # удаленная от левого края на ширину капли, и удаленная от
@@ -131,12 +131,12 @@ class Drop(Sprite):
 
     def update(self):
         """Перемещение капли."""
-        self.y += 0.3
+        self.y += self.speed * self.direction
         self.rect.y = self.y
 
     def check_edge(self):
         """Возвращает True, если капля достигает нижнего края экрана."""
-        return self.rect.bottom >= self.screen_rect.bottom
+        return self.rect.bottom >= self.screen_rect.bottom or self.rect.top <= 0
 
 
 if __name__ == '__main__':

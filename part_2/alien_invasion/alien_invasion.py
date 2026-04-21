@@ -59,41 +59,49 @@ class AlienInvasion:
             self.ship.moving_right = False
 
 
-    def _create_alien(self, alien_number, row_number):
-        """Создаем пришельца и размещает его во флот."""
+    def _create_alien(self, x_pos, y_pos):
+        """Создаем пришельца с координатами x_pos и y_pos."""
         new_alien = Alien(self)
-        alien_width, alien_height = new_alien.rect.size
-
-        # позиция по x: отступ + номер столбца х шаг (2 ширины пришельца)
-        new_alien.x = alien_width + 2 * alien_width * alien_number
+        new_alien.x = x_pos
+        new_alien.y = y_pos
         new_alien.rect.x = new_alien.x
-
-        # позиция по y: отступ сверху + номер строки х шаг (2 высоты пришельца)
-        new_alien.rect.y = alien_height + 2 * alien_height * row_number
+        new_alien.rect.y = new_alien.y
         self.aliens.add(new_alien)
 
-
     def _create_fleet(self):
-        """Создает пришельца и вычисляет количество пришельцев в ряду."""
-        # получаем актуальные размеры экрана:
+        """Создает sample пришельца и вычисляет количество пришельцев в ряду.
+        Помещает столько пришельцев в ряд по x, множит эти ряды на допустимое
+        количество по y."""
+        sample_alien = Alien(self)
         screen_width, screen_height = self.screen.get_size()
+        alien_width, alien_height = sample_alien.rect.size
+        current_y = alien_height
+        while current_y < (screen_height - 5 * alien_height):
+            current_x = alien_width
+            while current_x < (screen_width - 5 * alien_width):
+                self._create_alien(current_x, current_y)
+                current_x += alien_width * 2
+            current_x = alien_width
+            current_y += alien_height * 2
+        current_y = alien_height
 
-        # создаем первого пришельца для измерения размеров:
-        alien = Alien(self)
-        alien_width, alien_height = alien.rect.size
+    def _check_fleet_edges(self):
+        """Реагирует на достижение пришельцем края экрана."""
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                self._change_fleet_direction()
+                break
 
-        # вычисляем доступное пространство:
-        available_space_x = screen_width - 2 * alien_width
-        available_space_y = screen_height - 3 * alien_height
+    def _change_fleet_direction(self):
+        """Опускает весь флот и меняет направление его движения."""
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_drop_speed
+        self.settings.fleet_direction *= -1
 
-        # кол-во пришельцев по горизонтали и вертикали:
-        number_aliens_x = available_space_x // (2 * alien_width)
-        number_rows = available_space_y // (2 * alien_height)
-
-        # создаем флот - строки и столбцы пришельцев:
-        for row_number in range(number_rows):
-            for alien_number in range (number_aliens_x):
-                self._create_alien(alien_number, row_number)
+    def _update_aliens(self):
+        """Обновляет позиции всех пришельцев во флоте."""
+        self._check_fleet_edges()
+        self.aliens.update()
 
 
     def _fire_bullet(self):
@@ -110,25 +118,18 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
-
-
-    def _update_aliens(self):
-        """Обновляет позиции всех пришельцев во флоте."""
-        self._check_fleet_edges()
-        self.aliens.update()
-
-    def _check_fleet_edges(self):
-        """Реагирует на достижение пришельцем края экрана."""
-        for alien in self.aliens.sprites():
-            if alien.check_edges():
-                self._change_fleet_direction()
-                break
-
-    def _change_fleet_direction(self):
-        """Опускает весь флот и меняет направление его движения."""
-        for alien in self.aliens.sprites():
-            alien.rect.y += self.settings.fleet_drop_speed
-        self.settings.fleet_direction *= -1        
+        # проверка коллизий пришельцев и снарядов:
+        self._check_bullet_alien_collisions()
+    
+    def _check_bullet_alien_collisions(self):
+        """Удаление снарядов и пришельцев, участвующих в коллизиях.
+        Создание нового флота при уничтожении старого."""
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, False, True)
+        # уничтожение существуюших снарядов и создание нового флота
+        # при условии, что первый флот уничтожен:
+        if not self.aliens:
+            self.bullets.empty()
+            self._create_fleet()
 
 
     def _update_screen(self):
