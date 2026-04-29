@@ -10,6 +10,6 @@ class Settings:
         self.bullet_height = 3
         self.bullet_speed = 10
         # настройки пришельца
-        self.alien_speed = 1
+        self.alien_speed = 10
         self.alien_direction = -1
         self.alien_y_speed = 5

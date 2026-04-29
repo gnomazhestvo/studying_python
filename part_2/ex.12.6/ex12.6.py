@@ -2,13 +2,16 @@ import sys
 import pygame
 
 from random import randint
+from time import sleep
 
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from exercise_stats import ExerciseStats
 
 class Exercise:
+# =================================== BASE =====================================
     def __init__(self):
         pygame.init()
         # инициализация параметров:
@@ -17,10 +20,11 @@ class Exercise:
         pygame.display.set_caption('Ex. 12.6.')
         # fps:
         self.clock = pygame.time.Clock()
-        # инициализация модулей - корабль, снаряд, пришельцы:
+        # инициализация модулей - корабль, снаряд, пришельцы, статистика:
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.stats = ExerciseStats()
         # создает пришельца:
         self._create_fleet()
 
@@ -33,7 +37,16 @@ class Exercise:
         self.aliens.draw(self.screen)
         pygame.display.flip()
 
+    def run_exercise(self):
+        while True:
+            self._check_events()
+            self.ship.movings()
+            self._update_aliens()
+            self._update_bullets()
+            self._update_screen()
+            self.clock.tick(60)
 
+# =================================== USER EVENTS ==============================
     def _check_events(self):
         for event in pygame.event.get():
             self._check_keydown_events(event)
@@ -57,7 +70,7 @@ class Exercise:
             elif event.key == pygame.K_DOWN:
                 self.ship.moving_down = False
 
-
+# =================================== BULLETS ==================================
     def _fire_bullets(self):
         new_bullet = Bullet(self)
         self.bullets.add(new_bullet)
@@ -68,7 +81,7 @@ class Exercise:
             if bullet.rect.left >= self.screen.get_rect().right:
                 self.bullets.remove(bullet)
 
-
+# =================================== ALIENS ===================================
     def _create_alien(self, x_pos, y_pos):
         """Создает пришельца в точке с координатами x, y."""
         new_alien = Alien(self)
@@ -108,20 +121,34 @@ class Exercise:
                 break
 
     def _update_aliens(self):
+        """Выводит пришельцев на экран и обновляет их позиции."""
         self._check_fleet_edges()
         self.aliens.update()
+        self._check_bullets_aliens_collisions()
+        self._check_aliens_ship_collisions()
 
+    def _check_bullets_aliens_collisions(self):
+        """Сбивает пришельцев и подсчитывает очки."""
+        collisions = pygame.sprite.groupcollide(self.aliens, self.bullets, True, True)
+        if collisions:
+            self.stats.hitted_aliens.append(collisions)
+            print(f'Current score: {len(self.stats.hitted_aliens)}')
+        if not self.aliens:
+            self._create_fleet()
 
-    def run_exercise(self):
-        while True:
-            self._check_events()
-            self.ship.movings()
-            self._update_aliens()
-            self._update_bullets()
-            self._update_screen()
-            self.clock.tick(60)
+    def _check_aliens_ship_collisions(self):
+        """Если пришелец добрался до игрока, выводит сообщение об уничтожении
+        корабля, уничтожает корабль игрока и все спрайты, затем возвращает
+        игрока к начальной позиции и создает новый флот пришельцев."""
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self.stats.ships_lost += 1
+            print(f'You have lost your ship. Total ships lost: {self.stats.ships_lost}. Try better next time!')
+            sleep(0.5)
+            self.bullets.empty()
+            self.aliens.empty()
+            self._create_fleet()
 
-
+# =================================== RUN ======================================
 rr = Exercise()
 if __name__ == '__main__':
     rr.run_exercise()

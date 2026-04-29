@@ -10,7 +10,7 @@ class Ship:
         # загружает изображение и получает прямоугольник
         self.image = pygame.image.load('images/ship.png')
         self.rect = self.image.get_rect()
-        # каждый новый корабль появляется внизе в середине
+        # каждый новый корабль появляется внизу в середине
         self.rect.midbottom = self.screen_rect.midbottom
         # флаги перемещения корабля:
         self.moving_right = False
@@ -18,6 +18,11 @@ class Ship:
         self.settings = ai_game.settings
         # зададим атрибут координаты прямоугольника и превратим ее в float, 
         # чтобы можно было передавать в нее дробные значения:
+        self.x = float(self.rect.x)
+
+    def center_ship(self):
+        """Размещает корабль в центре нижнего края экрана."""
+        self.rect.midbottom = self.screen_rect.midbottom
         self.x = float(self.rect.x)
 
     def update(self):
