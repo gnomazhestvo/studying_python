@@ -12,7 +12,7 @@ from button import Button
 class AlienInvasion:
     """Класс для управления ресурсами и поведением игры."""
 
-# =================================== BASE ===================================
+# =================================== BASE =====================================
     def __init__(self):
          # подгрузка модуля настроек:
         self.settings = Settings()
@@ -54,7 +54,9 @@ class AlienInvasion:
 
     def _check_keydown_events(self, event):
         """Отслеживает нажатие клавиш."""
-        if event.key == pygame.K_LEFT:
+        if event.key == pygame.K_p:
+            self._start_game()
+        elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
         elif event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
@@ -69,13 +71,11 @@ class AlienInvasion:
             self.ship.moving_left = False
         elif event.key == pygame.K_RIGHT:
             self.ship.moving_right = False
-
-    def _check_play_button(self, mouse_pos):
-        """Запускает новую игру при нажатии кнопки Play."""
-        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
-        if button_clicked and self.game_active == False:
-            # сбрасывает результаты прошлой игры, удаляет снаряды, пришельцев,
-            # после чего создает новый флот и центрирует корабль внизу экрана:
+    
+    def _start_game(self):
+        # сбрасывает результаты прошлой игры, удаляет снаряды, пришельцев,
+        # после чего создает новый флот и центрирует корабль внизу экрана:
+        if self.game_active == False:
             self.stats.reset_stats()
             self.aliens.empty()
             self.bullets.empty()
@@ -85,12 +85,17 @@ class AlienInvasion:
             self.game_active = True
             # скрывает курсор мыши:
             pygame.mouse.set_visible(False)
-        elif self.game_active == True:
+        else:
             pass
+
+    def _check_play_button(self, mouse_pos):
+        """Запускает новую игру при нажатии кнопки Play."""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked:
+            self._start_game()
         else:
             self.game_active = False
-            pygame.mouse.set_visible(True)
-            
+            pygame.mouse.set_visible(True)            
 
 # =================================== ALIENS ===================================
     def _create_alien(self, x_pos, y_pos):

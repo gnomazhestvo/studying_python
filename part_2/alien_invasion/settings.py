@@ -21,6 +21,6 @@ class Settings:
         self.bullet_allowed = 3
 
         # параметры пришельцев:
-        self.alien_speed = 50
+        self.alien_speed = 5
         self.fleet_drop_speed = 10 # величина снижения флота при достижении им края
         self.fleet_direction = 1 # -1 будет обозначать обратное направление

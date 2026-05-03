@@ -27,12 +27,10 @@ class Ship:
 
     def update(self):
         """Отслеживает состояние флагов перемещения корабля."""
-        if self.moving_right:
-            if self.rect.right < self.screen_rect.right:
-                self.x += self.settings.ship_speed
-        if self.moving_left:
-            if self.rect.left > 0:
-                self.x -= self.settings.ship_speed
+        if self.moving_right and self.rect.right < self.screen_rect.right:
+            self.x += self.settings.ship_speed
+        if self.moving_left and self.rect.left > 0:
+            self.x -= self.settings.ship_speed
         # обновляем координату x после того как она была переведна во float:
         self.rect.x = self.x
 
